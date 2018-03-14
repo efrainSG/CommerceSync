@@ -10,21 +10,21 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace WpfApp1 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for FrmLogin.xaml
     /// </summary>
-    public partial class MainWindow : Window {
-        public MainWindow() {
+    public partial class FrmLogin : Window {
+        public FrmLogin() {
             InitializeComponent();
-            FrmLogin login = new FrmLogin();
-            bool? resultado = login.ShowDialog();
-            if (resultado.HasValue ? !resultado.Value : true) {
-                Close();
-            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            this.DialogResult = true;
+            this.Close();
         }
     }
 }
+

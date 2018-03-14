@@ -1,0 +1,17 @@
+﻿<Window x:Class="WpfApp1.FrmLogin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="FrmLogin" Height="350" Width="420" WindowStyle="None" Background="#7FFFFFFF" AllowsTransparency="True" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid Background="#BFFFFFFF">
+        <Label Content="Usuario:" Margin="50,150,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Label Content="Contraseña:" Margin="50,200,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <TextBox Margin="155,150,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" />
+        <PasswordBox Margin="155,200,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" />
+        <Button Content="Iniciar sesión" Margin="275,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsDefault="True" Click="Button_Click"/>
+        <Button Content="Cerrar" Margin="190,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource negButton}" IsCancel="True"/>
+    </Grid>
+</Window>

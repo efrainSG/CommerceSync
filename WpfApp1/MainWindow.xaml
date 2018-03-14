@@ -5,10 +5,58 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button Content="Button" Margin="223,221,219,0" VerticalAlignment="Top" Width="75"/>
-        <Label Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-
+        <TabControl Grid.ColumnSpan="2">
+            <TabItem Header="Sincronización">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Leer origen" Margin="95,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <Button Content="Leer destino" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"  />
+                    <Button Content="Sincronizar" Margin="180,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"  />
+                    <Label Content="Origen:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="0" />
+                    <Label Content="Destino:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                    <DataGrid Margin="10,84,10,10" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Producto" Binding="{Binding Nombre}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Precio" Binding="{Binding Precio}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <DataGrid Margin="10,84,10,10" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Producto" Binding="{Binding Nombre}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Precio" Binding="{Binding Precio}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Configuración">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Configuración de usuario" Margin="10,20,10,10" Grid.Row="0">
+                        <Grid>
+                            <Button Content="Guardar" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                            <Button Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Configuración de servidores" Margin="10,20,10,10" Grid.Row="1">
+                        <Grid>
+                            <Button Content="Guardar" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                            <Button Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
