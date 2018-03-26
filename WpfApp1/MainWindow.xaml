@@ -5,21 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <TabControl Grid.ColumnSpan="2">
-            <TabItem Header="Sincronización">
-                <Grid>
+        Title="Sincronizador" Height="600" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid Name="GridPpal">
+        <TabControl Grid.ColumnSpan="2" Name="TabCtrlPpal">
+            <TabItem Header="Sincronización" Name="tabSincronizacion">
+                <Grid Name="GridSincronizacion">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Content="Leer origen" Margin="95,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <Button Content="Leer destino" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"  />
-                    <Button Content="Sincronizar" Margin="180,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"  />
-                    <Label Content="Origen:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="0" />
-                    <Label Content="Destino:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="1" />
-                    <DataGrid Margin="10,84,10,10" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False">
+                    <Button Name="btnOrigen" Content="Leer origen" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnOrigen_Click" />
+                    <Button Name="btnDestino" Content="Leer destino" Margin="95,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnDestino_Click"  />
+                    <Button Name="btnSincronizar" Content="Sincronizar" Margin="180,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnSincronizar_Click"  />
+                    <Label Name="lblOrigen" Content="Origen:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="0" />
+                    <Label Name="lblDestino" Content="Destino:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                    <DataGrid Name="dgOrigen" Margin="10,84,10,10" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False">
                         <DataGrid.Columns>
                             <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
                             <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
@@ -27,7 +27,7 @@
                             <DataGridTextColumn Header="Precio" Binding="{Binding Precio}" Width="auto" MinWidth="100" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DataGrid Margin="10,84,10,10" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False">
+                    <DataGrid Name="dgDestino" Margin="10,84,10,10" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False">
                         <DataGrid.Columns>
                             <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
                             <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
@@ -37,24 +37,67 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Configuración">
-                <Grid>
+            <TabItem Name="tabConfiguracion" Header="Configuración">
+                <Grid Name="gridConfiguracion">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="1.75*" />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="Configuración de usuario" Margin="10,20,10,10" Grid.Row="0">
-                        <Grid>
-                            <Button Content="Guardar" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                            <Button Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" />
+                    <GroupBox Name="gpConfigUsuario" Header="Configuración de usuario" Margin="10,20,10,10" Grid.Row="0">
+                        <Grid Name="gridConfigUsuario">
+                            <Label Name="lblUsuario" Content="Usuario" Margin="10,10,0,0" Width="75" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <Label Name="lblPassword" Content="Contraseña" Margin="10,50,0,0" Width="75" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <TextBox Name="txtUsuario" Margin="100,10,10,0" VerticalAlignment="Top"  />
+                            <PasswordBox Name="txtPassword" Margin="100,50,10,0" VerticalAlignment="Top" />
+                            <Button Name="btnGuardarUsuario" Content="Guardar" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnGuardarUsuario_Click" />
+                            <Button Name="btnRevertirUsuario" Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" Click="btnRevertirUsuario_Click" />
                         </Grid>
                     </GroupBox>
                     <GroupBox Header="Configuración de servidores" Margin="10,20,10,10" Grid.Row="1">
-                        <Grid>
-                            <Button Content="Guardar" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                            <Button Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" />
+                        <Grid Name="gridServidores">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Name="lblServOrigen" Content="Serv. De origen" Grid.Column="0" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+                            <Label Name="lblDBOrigen" Content="Base de datos" Grid.Column="0" Margin="10,43,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+                            <Label Name="lblUsrOrigen" Content="Usuario" Grid.Column="0" Margin="10,76,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+                            <Label Name="lblPassOrigen" Content="Contraseña" Grid.Column="0" Margin="10,109,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+
+                            <TextBox Name="txtServOrigen" Margin="120,10,10,0" VerticalAlignment="Top" />
+                            <TextBox Name="txtBDOrigen" Margin="120,43,10,0" VerticalAlignment="Top" />
+                            <TextBox Name="txtUsrOrigen" Margin="120,76,10,0" VerticalAlignment="Top" />
+                            <TextBox Name="txtPassOrigen" Margin="120,109,10,0" VerticalAlignment="Top" />
+                            <CheckBox Name="chkSeguridadOrigen" Margin="120,142,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="Seguridad integrada" Grid.Column="0" Checked="chkSeguridadOrigen_Checked" />
+                            <TextBox Name="txbConnStrOrigen" Margin="10,163,10,51" Text="Cadena de conexión: " TextWrapping="Wrap" IsReadOnly="True" />
+
+                            <Label Name="lblServDestino" Content="Serv. De destino" Grid.Column="1" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+                            <Label Name="lblDBDertino" Content="Base de datos" Grid.Column="1" Margin="10,43,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+                            <Label Name="lblUsrDestino" Content="Usuario" Grid.Column="1" Margin="10,76,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+                            <Label Name="lblPassDestino" Content="Contraseña" Grid.Column="1" Margin="10,109,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="100" />
+
+                            <TextBox Name="txtServDestino" Margin="120,10,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                            <TextBox Name="txtBDDestino" Margin="120,43,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                            <TextBox Name="txtUsrDestino" Margin="120,76,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                            <TextBox Name="txtPassDestino" Margin="120,109,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                            <CheckBox Name="chkSeguridadDestino" Margin="120,142,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="Seguridad integrada" Grid.Column="1" Checked="chkSeguridadDestino_Checked" />
+                            <TextBox Name="txbConnStrDestino" Margin="10,163,10,51" Text="Cadena de conexión: " TextWrapping="Wrap" Grid.Column="1" IsReadOnly="True" />
+
+                            <Button Name="btnGuardarServidores" Grid.Column="1" Content="Guardar" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnGuardarServidores_Click" />
+                            <Button Name="btnCancealrServidores" Grid.Column="1" Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" Click="btnCancealrServidores_Click" />
                         </Grid>
                     </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Ayuda" Name="tabAyuda">
+                <Grid Name="gridAyuda">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.4*"/>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TreeView Name="treeAyuda" Margin="10">
+                    </TreeView>
+                    <RichTextBox Name="rtxtContenido" Margin="10" Grid.Column="1" />
                 </Grid>
             </TabItem>
         </TabControl>

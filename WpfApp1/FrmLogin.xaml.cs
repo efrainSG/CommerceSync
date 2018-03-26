@@ -17,13 +17,33 @@ namespace WpfApp1 {
     /// Interaction logic for FrmLogin.xaml
     /// </summary>
     public partial class FrmLogin : Window {
+        public UsuarioModel Usuario {
+            get; set;
+        }
         public FrmLogin() {
             InitializeComponent();
+            txbMensaje.Text = string.Empty;
+            Usuario = new UsuarioModel();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e) {
-            this.DialogResult = true;
-            this.Close();
+            if (Usuario.Usuario.Equals(txtUsuario.Text.ToLower()) &&
+                Usuario.Password.Equals(txtPass.Password)) {
+                this.DialogResult = true;
+                this.Close();
+            } else {
+                //this.DialogResult = false;
+                //this.Close();
+                txbMensaje.Text = "Usuario y/o contraseña incorrectos.";
+            }
+        }
+
+        private void txtUsuario_TextChanged(object sender, TextChangedEventArgs e) {
+            txbMensaje.Text = string.Empty;
+        }
+
+        private void txtPass_PasswordChanged(object sender, RoutedEventArgs e) {
+            txbMensaje.Text = string.Empty;
         }
     }
 }

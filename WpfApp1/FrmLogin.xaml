@@ -7,11 +7,12 @@
         mc:Ignorable="d"
         Title="FrmLogin" Height="350" Width="420" WindowStyle="None" Background="#7FFFFFFF" AllowsTransparency="True" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid Background="#BFFFFFFF">
+        <TextBlock Name="txbMensaje" Text="Mensaje" Margin="50,129,0,0" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource errorBlock}" />
         <Label Content="Usuario:" Margin="50,150,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Content="Contraseña:" Margin="50,200,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <TextBox Margin="155,150,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" />
-        <PasswordBox Margin="155,200,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" />
-        <Button Content="Iniciar sesión" Margin="275,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsDefault="True" Click="Button_Click"/>
+        <TextBox Name="txtUsuario" Margin="155,150,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" TextChanged="txtUsuario_TextChanged" />
+        <PasswordBox Name="txtPass" Margin="155,200,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" PasswordChanged="txtPass_PasswordChanged" />
         <Button Content="Cerrar" Margin="190,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource negButton}" IsCancel="True"/>
+        <Button Content="Iniciar sesión" Margin="275,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsDefault="True" Click="Button_Click"/>
     </Grid>
 </Window>
