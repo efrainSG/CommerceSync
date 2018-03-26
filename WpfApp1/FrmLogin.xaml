@@ -6,13 +6,20 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="FrmLogin" Height="350" Width="420" WindowStyle="None" Background="#7FFFFFFF" AllowsTransparency="True" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
-    <Grid Background="#BFFFFFFF">
-        <TextBlock Name="txbMensaje" Text="Mensaje" Margin="50,129,0,0" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource errorBlock}" />
-        <Label Content="Usuario:" Margin="50,150,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <Label Content="Contraseña:" Margin="50,200,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <TextBox Name="txtUsuario" Margin="155,150,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" TextChanged="txtUsuario_TextChanged" />
-        <PasswordBox Name="txtPass" Margin="155,200,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" PasswordChanged="txtPass_PasswordChanged" />
-        <Button Content="Cerrar" Margin="190,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource negButton}" IsCancel="True"/>
-        <Button Content="Iniciar sesión" Margin="275,253,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsDefault="True" Click="Button_Click"/>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=txtUsuario}">
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="White" Offset="0.431"/>
+                <GradientStop Offset="1" Color="#7FFFFFFF"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <TextBlock Name="txbMensaje" Text="Mensaje" Margin="64.922,170.775,0,0" Width="305" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource errorBlock}" />
+        <Label Content="Usuario:" Margin="64.922,191.775,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Label Content="Contraseña:" Margin="64.922,234.775,0,0" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <TextBox Name="txtUsuario" Margin="169.922,191.775,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" TextChanged="txtUsuario_TextChanged" />
+        <PasswordBox Name="txtPass" Margin="169.922,234.775,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" PasswordChanged="txtPass_PasswordChanged" />
+        <Button Content="Cerrar" Margin="204.922,278.775,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource negButton}" IsCancel="True"/>
+        <Button Content="Iniciar sesión" Margin="289.922,278.775,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" IsDefault="True" Click="Button_Click"/>
+        <Image HorizontalAlignment="Left" Height="130" Margin="10,10,0,0" VerticalAlignment="Top" Width="400" Source="logo.jpeg"/>
     </Grid>
 </Window>

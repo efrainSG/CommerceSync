@@ -1,30 +1,74 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 
-namespace WpfApp1 {
-    public class UsuarioModel {
+namespace WpfApp1
+{
+    public class UsuarioModel
+    {
         public string Usuario {
             get; set;
         }
         public string Password {
             get; set;
         }
+        public string Salt {
+            get;
+            set;
+        }
+        public static string cifrado(UsuarioModel Usuario) {
+            StringBuilder merge = new StringBuilder();
+            int i = 0, j = 0, k = 0;
+            if (!string.IsNullOrEmpty(Usuario.Salt)) {
+                while (i < Usuario.Usuario.Length || j < Usuario.Password.Length) {
+                    if (i < Usuario.Usuario.Length) {
+                        merge.Append(Usuario.Usuario[i]);
+                        i++;
+                    }
+                    merge.Append(Usuario.Salt[k]);
+                    k++;
+                    if (k == Usuario.Salt.Length)
+                        k = 0;
+                    if (j < Usuario.Password.Length) {
+                        merge.Append(Usuario.Password[j]);
+                        j++;
+                    }
+                }
+            } else {
+                while (i < Usuario.Usuario.Length || j < Usuario.Password.Length) {
+                    if (i < Usuario.Usuario.Length) {
+                        merge.Append(Usuario.Usuario[i]);
+                        i++;
+                    }
+                    if (j < Usuario.Password.Length) {
+                        merge.Append(Usuario.Password[j]);
+                        j++;
+                    }
+                }
+            }
+            byte[] bytes = Encoding.Unicode.GetBytes(merge.ToString());
+            SHA256Managed hashstring = new SHA256Managed();
+            byte[] hash = hashstring.ComputeHash(bytes);
+            string hashString = string.Empty;
+            foreach (byte x in hash) {
+                hashString += String.Format("{0:x2}", x);
+            }
+            return hashString;
+        }
     }
-    public class ConnStringModel {
+    public class ConnStringModel
+    {
         public string DataSource {
             get; set;
         }
@@ -46,17 +90,44 @@ namespace WpfApp1 {
             else
                 return string.Format("Data Source={0}; Initial Catalog={1}; Integrated Security=true;", DataSource, Catalog);
         }
+        public string ToStringWithoutPass() {
+            if (!IntSecurity)
+                return string.Format("Data Source={0}; Initial Catalog={1}; User id={2};", DataSource, Catalog, User);
+            else
+                return string.Format("Data Source={0}; Initial Catalog={1}; Integrated Security=true;", DataSource, Catalog);
+        }
     }
+    public class ResultadoItem
+    {
+        public int Id { get; set; }
+        public string SKU { get; set; }
+        public string Nombre { get; set; }
+        public string Precio { get; set; }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window
+    {
         const string K_SETTINGS = "settings.xml";
         const string K_SRV_SETTINGS = "servers.xml";
+        enum tipoCarga
+        {
+            Completo = 0,
+            Servidores = 1,
+            Usuario = 2
+        };
+        enum eError
+        {
+            NO_ERROR = 0,
+            NO_SETTINGS = 1,
+            NO_SERVERS = 2
+        }
 
         private SqlCommand Cmd;
         private SqlConnection Conn;
-        private SqlDataReader dr;
+        private SqlDataAdapter da;
 
         public string ConnStringOrigen {
             get; private set;
@@ -73,12 +144,15 @@ namespace WpfApp1 {
         }
         private UsuarioModel Usuario;
 
+        private eError error;
+
         public MainWindow() {
             InitializeComponent();
             Usuario = new UsuarioModel();
             ConnStrModelOrigen = new ConnStringModel();
             ConnStrModelDestino = new ConnStringModel();
-            if (LoadSettings()) {
+            error = LoadSettings();
+            if (error.Equals(eError.NO_ERROR)) {
                 FrmLogin login = new FrmLogin() {
                     Usuario = Usuario
                 };
@@ -86,9 +160,13 @@ namespace WpfApp1 {
                 if (resultado.HasValue ? !resultado.Value : true) {
                     Close();
                 }
+                Usuario.Password = login.usrlog.Password;
+            } else if (error.Equals(eError.NO_SETTINGS)) {
+                Close();
             }
             #region asignación de valores a controles
             txtUsuario.Text = Usuario.Usuario;
+            txtSalt.Text = Usuario.Salt;
 
             txtServOrigen.Text = ConnStrModelOrigen.DataSource;
             txtBDOrigen.Text = ConnStrModelOrigen.Catalog;
@@ -102,52 +180,89 @@ namespace WpfApp1 {
 
             txbConnStrOrigen.Text = ConnStrModelOrigen.ToString();
             txbConnStrDestino.Text = ConnStrModelDestino.ToString();
+
+            TextRange range;
+            System.IO.FileStream fStream;
+            if (System.IO.File.Exists(@".\media\Ayuda.rtf")) {
+                range = new TextRange(rtxtContenido.Document.ContentStart, rtxtContenido.Document.ContentEnd);
+                fStream = new System.IO.FileStream(@".\media\Ayuda.rtf", System.IO.FileMode.OpenOrCreate);
+                range.Load(fStream, System.Windows.DataFormats.Rtf);
+                fStream.Close();
+
+            }
             #endregion
         }
 
-        private bool LoadSettings() {
+        private eError LoadSettings(tipoCarga carga = tipoCarga.Completo) {
+            XmlReader reader;
             try {
                 #region User settings
-                XmlReader reader = XmlReader.Create(K_SETTINGS);
-                while (reader.Read()) {
-                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "User") {
-                        Usuario.Usuario = reader.GetAttribute("ID").ToLower();
-                        while (reader.NodeType != XmlNodeType.EndElement) {
-                            reader.Read();
-                            if (reader.Name == "PASS") {
-                                while (reader.NodeType != XmlNodeType.EndElement) {
-                                    reader.Read();
-                                    if (reader.NodeType == XmlNodeType.Text)
-                                        Usuario.Password = reader.Value;
-                                }
+                if (carga.Equals(tipoCarga.Completo) || carga.Equals(tipoCarga.Usuario)) {
+                    reader = XmlReader.Create(K_SETTINGS);
+                    while (reader.Read()) {
+                        if (reader.NodeType == XmlNodeType.Element && reader.Name == "User") {
+                            Usuario.Usuario = reader.GetAttribute("ID").ToLower();
+                            while (reader.NodeType != XmlNodeType.EndElement) {
                                 reader.Read();
+                                if (reader.Name == "PASS") {
+                                    while (reader.NodeType != XmlNodeType.EndElement) {
+                                        reader.Read();
+                                        if (reader.NodeType == XmlNodeType.Text)
+                                            Usuario.Password = reader.Value;
+                                    }
+                                    reader.Read();
+                                }
+                                if (reader.Name == "SALT") {
+                                    while (reader.NodeType != XmlNodeType.EndElement) {
+                                        reader.Read();
+                                        if (reader.NodeType == XmlNodeType.Text)
+                                            Usuario.Salt = reader.Value;
+                                    }
+                                    reader.Read();
+                                }
                             }
                         }
                     }
                 }
                 #endregion
                 #region servers settings
-                reader = XmlReader.Create(K_SRV_SETTINGS);
-                while (reader.Read()) {
-                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "Servidor") {
-                        if (reader.GetAttribute("Tipo").Equals("Origen")) {
-                            ConnStrModelOrigen.DataSource = reader.GetAttribute("DataSource");
-                            ConnStrModelOrigen.Catalog = reader.GetAttribute("Catalog");
-                            ConnStrModelOrigen.User = reader.GetAttribute("User");
-                            ConnStrModelOrigen.IntSecurity = reader.GetAttribute("IntegratedSecurity") == "True";
-                        }
-                        if (reader.GetAttribute("Tipo").Equals("Destino")) {
-                            ConnStrModelDestino.DataSource = reader.GetAttribute("DataSource");
-                            ConnStrModelDestino.Catalog = reader.GetAttribute("Catalog");
-                            ConnStrModelDestino.User = reader.GetAttribute("User");
-                            ConnStrModelDestino.IntSecurity = reader.GetAttribute("IntegratedSecurity") == "True";
+                if (carga.Equals(tipoCarga.Completo) || carga.Equals(tipoCarga.Servidores)) {
+                    reader = XmlReader.Create(K_SRV_SETTINGS);
+                    while (reader.Read()) {
+                        if (reader.NodeType == XmlNodeType.Element && reader.Name == "Servidor") {
+                            if (reader.GetAttribute("Tipo").Equals("Origen")) {
+                                ConnStrModelOrigen.DataSource = reader.GetAttribute("DataSource");
+                                ConnStrModelOrigen.Catalog = reader.GetAttribute("Catalog");
+                                ConnStrModelOrigen.User = reader.GetAttribute("User");
+                                ConnStrModelOrigen.IntSecurity = reader.GetAttribute("IntegratedSecurity") == "True";
+                            }
+                            if (reader.GetAttribute("Tipo").Equals("Destino")) {
+                                ConnStrModelDestino.DataSource = reader.GetAttribute("DataSource");
+                                ConnStrModelDestino.Catalog = reader.GetAttribute("Catalog");
+                                ConnStrModelDestino.User = reader.GetAttribute("User");
+                                ConnStrModelDestino.IntSecurity = reader.GetAttribute("IntegratedSecurity") == "True";
+                            }
                         }
                     }
                 }
                 #endregion
-                return true;
-            } catch (Exception ex) {
-                return false;
+            } catch (FileNotFoundException ex) {
+                if (ex.FileName.Contains("settings"))
+                    return eError.NO_SETTINGS;
+                if (ex.FileName.Contains("servers"))
+                    return eError.NO_SERVERS;
+            }
+            return eError.NO_ERROR;
+        }
+
+        private IEnumerable<DataGridRow> GetDataGridRows(DataGrid grid) {
+            var itemsSource = grid.ItemsSource as IEnumerable;
+            if (null == itemsSource)
+                yield return null;
+            foreach (var item in itemsSource) {
+                var row = grid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
+                if (null != row)
+                    yield return row;
             }
         }
 
@@ -165,15 +280,17 @@ namespace WpfApp1 {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
 
-            Usuario.Usuario = txtUsuario.Text;
-            Usuario.Password = txtPassword.Password;
+            Usuario.Usuario = txtUsuario.Text.ToLower();
+            Usuario.Password = !string.IsNullOrEmpty(txtPassword.Password) ? txtPassword.Password : Usuario.Password;
+            Usuario.Salt = txtSalt.Text;
 
             XmlWriter writer = XmlWriter.Create(K_SETTINGS, settings);
             writer.WriteStartDocument();
             writer.WriteComment("This file is generated by the program.");
             writer.WriteStartElement("User");
             writer.WriteAttributeString("ID", Usuario.Usuario);
-            writer.WriteElementString("PASS", Usuario.Password);
+            writer.WriteElementString("PASS", UsuarioModel.cifrado(Usuario));
+            writer.WriteElementString("SALT", Usuario.Salt);
             writer.WriteEndElement();
             writer.WriteEndDocument();
 
@@ -193,7 +310,7 @@ namespace WpfApp1 {
                 ConnStrModelOrigen.User = txtUsrOrigen.Text;
                 ConnStrModelOrigen.Passwd = txtPassOrigen.Text;
             }
-            txbConnStrOrigen.Text = "Cadena de conexión = " + ConnStrModelOrigen.ToString();
+            txbConnStrOrigen.Text = "Cadena de conexión = " + ConnStrModelOrigen.ToStringWithoutPass();
 
             ConnStrModelDestino.DataSource = txtServDestino.Text;
             ConnStrModelDestino.Catalog = txtBDDestino.Text;
@@ -205,7 +322,7 @@ namespace WpfApp1 {
                 ConnStrModelDestino.User = txtUsrOrigen.Text;
                 ConnStrModelDestino.Passwd = txtPassOrigen.Text;
             }
-            txbConnStrDestino.Text = "Cadena de conexión = " + ConnStrModelDestino.ToString();
+            txbConnStrDestino.Text = "Cadena de conexión = " + ConnStrModelDestino.ToStringWithoutPass();
 
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
@@ -235,32 +352,156 @@ namespace WpfApp1 {
 
         }
 
-        private void btnCancealrServidores_Click(object sender, RoutedEventArgs e) {
+        private void btnRevertirUsuario_Click(object sender, RoutedEventArgs e) {
+            LoadSettings(tipoCarga.Usuario);
+        }
 
+        private void btnCancealrServidores_Click(object sender, RoutedEventArgs e) {
+            LoadSettings(tipoCarga.Servidores);
         }
 
         private void btnOrigen_Click(object sender, RoutedEventArgs e) {
             using (Conn = new SqlConnection(ConnStrModelOrigen.ToString())) {
                 using (Cmd = new SqlCommand() {
                     Connection = Conn,
-                    CommandText = "",
+                    //CommandText = "select Id, Name AS Nombre, Description, SKU, Price AS Precio from dbo.Productos_2 order by Id",
+                    CommandText = "SELECT CIDPRODUCTO as Id, CCODIGOPRODUCTO as Nombre, CNOMBREPRODUCTO as Codigo, CPRECIO1 as Precio FROM dbo.admProductos order by Id",
                     CommandType = System.Data.CommandType.Text
                 }) {
-
+                    da = new SqlDataAdapter(Cmd);
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+                    dgOrigen.ItemsSource = ds.Tables[0].DefaultView;
                 }
             }
+            btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
         }
 
         private void btnDestino_Click(object sender, RoutedEventArgs e) {
+            using (Conn = new SqlConnection(ConnStrModelDestino.ToString())) {
+                using (Cmd = new SqlCommand() {
+                    Connection = Conn,
+                    CommandText = "select Id, Name AS Nombre, ShortDescription, SKU, Price AS Precio from dbo.Product order by Id",
+                    CommandType = System.Data.CommandType.Text
+                }) {
+                    da = new SqlDataAdapter(Cmd);
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+                    dgDestino.ItemsSource = ds.Tables[0].DefaultView;
+                }
+            }
+            btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
+        }
 
+        private void btnAnalizar_Click(object sender, RoutedEventArgs e) {
+            GridView gvErroresOrigen = new GridView(), gvErroresDestino = new GridView();
+            int i = 0, j = 0, finOrigen, finDestino;
+            StringBuilder sbQuery = new StringBuilder();
+            var dvOrigen = (dgOrigen.ItemsSource as DataView).Table;
+            var dvDestino = (dgDestino.ItemsSource as DataView).Table;
+            List<object> filaOrigen = new List<object>(), filaDestino = new List<object>();
+            finOrigen = dvOrigen.Rows.Count;
+            finDestino = dvDestino.Rows.Count;
+            gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                Header = "Id",
+                DisplayMemberBinding = new Binding("Id"),
+                Width = 50D
+            });
+            gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                Header = "SKU",
+                DisplayMemberBinding = new Binding("SKU")
+            });
+            gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                Header = "Nombre",
+                DisplayMemberBinding = new Binding("Nombre")
+            });
+            gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                Header = "Precio",
+                DisplayMemberBinding = new Binding("Precio")
+            });
+            gvErroresDestino.Columns.Add(new GridViewColumn() {
+                Header = "Id",
+                DisplayMemberBinding = new Binding("Id"),
+                Width = 50D
+            });
+            gvErroresDestino.Columns.Add(new GridViewColumn() {
+                Header = "SKU",
+                DisplayMemberBinding = new Binding("SKU")
+            });
+            gvErroresDestino.Columns.Add(new GridViewColumn() {
+                Header = "Nombre",
+                DisplayMemberBinding = new Binding("Nombre")
+            });
+            gvErroresDestino.Columns.Add(new GridViewColumn() {
+                Header = "Precio",
+                DisplayMemberBinding = new Binding("Precio")
+            });
+            lstErroresOrigen.Items.Clear();
+            lstErroresDestino.Items.Clear();
+            lstErroresOrigen.View = gvErroresOrigen;
+            lstErroresDestino.View = gvErroresDestino;
+
+            while (i <= finOrigen && j <= finDestino) {
+                if (i < finOrigen)
+                    filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
+                if (j < finDestino)
+                    filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
+                if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
+                    int IdO = int.Parse(filaOrigen[0].ToString()),
+                        IdD = int.Parse(filaDestino[0].ToString());
+                    if (IdO < IdD) {
+                        i++;
+                        lstErroresOrigen.Items.Add(new ResultadoItem() {
+                            Id = int.Parse(filaOrigen[0].ToString()),
+                            SKU = filaOrigen[3].ToString(),
+                            Nombre = filaOrigen[1].ToString(),
+                            Precio = filaOrigen[4].ToString()
+                        });
+                    }
+                    if (IdO == IdD) {
+                        if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
+                            sbQuery.AppendLine(
+                                    string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaOrigen[0].ToString())
+                                    //string.Format("UPDATE dbo.Productos_2 SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaOrigen[0].ToString())
+                                    );
+                        i++;
+                        j++;
+                    }
+                    if (IdO > IdD) {
+                        j++;
+                        lstErroresDestino.Items.Add(new ResultadoItem() {
+                            Id = int.Parse(filaDestino[0].ToString()),
+                            SKU = filaDestino[3].ToString(),
+                            Nombre = filaDestino[1].ToString(),
+                            Precio = filaDestino[4].ToString()
+                        });
+                    }
+                }
+            }
+            txtQuery.Text = sbQuery.ToString();
+            tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) ||
+                (lstErroresOrigen.Items.Count > 0) ||
+                (lstErroresDestino.Items.Count > 0);
+            btnSincronizar.IsEnabled = !string.IsNullOrEmpty(txtQuery.Text);
         }
 
         private void btnSincronizar_Click(object sender, RoutedEventArgs e) {
+            try {
+                using (Conn = new SqlConnection(ConnStrModelDestino.ToString())) {
+                    using (Cmd = new SqlCommand() {
+                        Connection = Conn,
+                        CommandText = txtQuery.Text,
+                        CommandType = System.Data.CommandType.Text
+                    }) {
+                        Conn.Open();
+                        Cmd.ExecuteNonQuery();
+                        Conn.Close();
+                    }
+                }
+            }catch(Exception ex) {
 
+            }
         }
 
-        private void btnRevertirUsuario_Click(object sender, RoutedEventArgs e) {
-
-        }
     }
 }

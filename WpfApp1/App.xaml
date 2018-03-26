@@ -34,6 +34,7 @@
             <Setter Property="BorderBrush" Value="#77AF68" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
+        
         <Style TargetType="TextBlock" x:Key="errorBlock">
             <Setter Property="Foreground" Value="#730053" />
             <Setter Property="FontStyle" Value="Oblique" />
@@ -42,7 +43,6 @@
         <Style TargetType="DataGrid">
             <Setter Property="Background" Value="#FFFEFE" />
         </Style>
-        
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#2E6A1F" />
             <Setter Property="Foreground" Value="#EDFFE8" />

@@ -20,6 +20,10 @@ namespace WpfApp1 {
         public UsuarioModel Usuario {
             get; set;
         }
+        public UsuarioModel usrlog {
+            get;
+            private set;
+        }
         public FrmLogin() {
             InitializeComponent();
             txbMensaje.Text = string.Empty;
@@ -27,8 +31,15 @@ namespace WpfApp1 {
         }
 
         private void Button_Click(object sender, RoutedEventArgs e) {
-            if (Usuario.Usuario.Equals(txtUsuario.Text.ToLower()) &&
-                Usuario.Password.Equals(txtPass.Password)) {
+            string c = UsuarioModel.cifrado(Usuario);
+            usrlog = new UsuarioModel() {
+                Usuario = txtUsuario.Text.ToLower(),
+                Password = txtPass.Password,
+                Salt = Usuario.Salt
+            };
+
+            if (Usuario.Usuario.Equals(usrlog.Usuario) &&
+                Usuario.Password.Equals(UsuarioModel.cifrado(usrlog))) {
                 this.DialogResult = true;
                 this.Close();
             } else {
