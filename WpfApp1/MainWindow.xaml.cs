@@ -307,8 +307,9 @@ namespace WpfApp1
                 ConnStrModelOrigen.User = string.Empty;
                 ConnStrModelOrigen.Passwd = string.Empty;
             } else {
+                ConnStrModelOrigen.IntSecurity = false;
                 ConnStrModelOrigen.User = txtUsrOrigen.Text;
-                ConnStrModelOrigen.Passwd = txtPassOrigen.Text;
+                ConnStrModelOrigen.Passwd = txtPassOrigen.Password;
             }
             txbConnStrOrigen.Text = "Cadena de conexión = " + ConnStrModelOrigen.ToStringWithoutPass();
 
@@ -319,8 +320,9 @@ namespace WpfApp1
                 ConnStrModelDestino.User = string.Empty;
                 ConnStrModelDestino.Passwd = string.Empty;
             } else {
-                ConnStrModelDestino.User = txtUsrOrigen.Text;
-                ConnStrModelDestino.Passwd = txtPassOrigen.Text;
+                ConnStrModelDestino.IntSecurity = false;
+                ConnStrModelDestino.User = txtUsrDestino.Text;
+                ConnStrModelDestino.Passwd = txtPassDestino.Password;
             }
             txbConnStrDestino.Text = "Cadena de conexión = " + ConnStrModelDestino.ToStringWithoutPass();
 
@@ -364,8 +366,7 @@ namespace WpfApp1
             using (Conn = new SqlConnection(ConnStrModelOrigen.ToString())) {
                 using (Cmd = new SqlCommand() {
                     Connection = Conn,
-                    //CommandText = "select Id, Name AS Nombre, Description, SKU, Price AS Precio from dbo.Productos_2 order by Id",
-                    CommandText = "SELECT CIDPRODUCTO as Id, CCODIGOPRODUCTO as Nombre, CNOMBREPRODUCTO as Codigo, CPRECIO1 as Precio FROM dbo.admProductos order by Id",
+                    CommandText = "SELECT CIDPRODUCTO as Id, CNOMBREPRODUCTO as Nombre, '' AS Descripcion, CCODIGOPRODUCTO as Codigo, CPRECIO1 as Precio FROM dbo.admProductos order by Id",
                     CommandType = System.Data.CommandType.Text
                 }) {
                     da = new SqlDataAdapter(Cmd);
@@ -375,22 +376,28 @@ namespace WpfApp1
                 }
             }
             btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
+            lblOrigen.Content = "Origen: " + ConnStrModelOrigen.DataSource + "." + ConnStrModelOrigen.Catalog;
         }
 
         private void btnDestino_Click(object sender, RoutedEventArgs e) {
-            using (Conn = new SqlConnection(ConnStrModelDestino.ToString())) {
-                using (Cmd = new SqlCommand() {
-                    Connection = Conn,
-                    CommandText = "select Id, Name AS Nombre, ShortDescription, SKU, Price AS Precio from dbo.Product order by Id",
-                    CommandType = System.Data.CommandType.Text
-                }) {
-                    da = new SqlDataAdapter(Cmd);
-                    DataSet ds = new DataSet();
-                    da.Fill(ds);
-                    dgDestino.ItemsSource = ds.Tables[0].DefaultView;
+            try {
+                using (Conn = new SqlConnection(ConnStrModelDestino.ToString())) {
+                    using (Cmd = new SqlCommand() {
+                        Connection = Conn,
+                        CommandText = "select Id, Name AS Nombre, ShortDescription, SKU, Price AS Precio from dbo.Product order by Id",
+                        CommandType = System.Data.CommandType.Text
+                    }) {
+                        da = new SqlDataAdapter(Cmd);
+                        DataSet ds = new DataSet();
+                        da.Fill(ds);
+                        dgDestino.ItemsSource = ds.Tables[0].DefaultView;
+                    }
                 }
+                btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
+                lblDestino.Content = "Destino: " + ConnStrModelDestino.DataSource + "." + ConnStrModelDestino.Catalog;
+            } catch (Exception ex) {
+                lblDestino.Content = "Destino: " + ex.Message;
             }
-            btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
         }
 
         private void btnAnalizar_Click(object sender, RoutedEventArgs e) {

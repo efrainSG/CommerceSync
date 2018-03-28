@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_41BE46D726A790DB3B5B489311B1BCB5"
+        "OwnerKey" = "8:_F87DB8524092412099B90279AE55DDC3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C69F1F733B1243D682F9B9DC2B602417"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -41,6 +47,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_F87DB8524092412099B90279AE55DDC3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_41BE46D726A790DB3B5B489311B1BCB5"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -158,10 +170,21 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C69F1F733B1243D682F9B9DC2B602417"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_41BE46D726A790DB3B5B489311B1BCB5"
             {
-            "SourcePath" = "8:..\\WpfApp1\\bin\\Release\\servers.xml"
-            "TargetName" = "8:servers.xml"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+                "ScatterAssemblies"
+                {
+                    "_41BE46D726A790DB3B5B489311B1BCB5"
+                    {
+                    "Name" = "8:System.Net.Http.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Net.Http.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_C4DFAF42E7FD4CDBA9A32591C116D941"
             "Condition" = "8:"
@@ -175,6 +198,26 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C69F1F733B1243D682F9B9DC2B602417"
+            {
+            "SourcePath" = "8:..\\WpfApp1\\bin\\Release\\servers.xml"
+            "TargetName" = "8:servers.xml"
+            "Tag" = "8:"
+            "Folder" = "8:_C4DFAF42E7FD4CDBA9A32591C116D941"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:TRUE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
@@ -184,13 +227,13 @@
             "TargetName" = "8:settings.xml"
             "Tag" = "8:"
             "Folder" = "8:_C4DFAF42E7FD4CDBA9A32591C116D941"
-            "Condition" = "8:"
+            "Condition" = "8:not EXISTS_SETTINGS"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
             "ReadOnly" = "11:FALSE"
             "Hidden" = "11:FALSE"
             "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
+            "Permanent" = "11:TRUE"
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
@@ -266,6 +309,21 @@
         }
         "Locator"
         {
+            "{39E1837C-0DB9-45A2-89C8-438377A77565}:_EB5AAD49DF1F4EC092AABA56968E873F"
+            {
+            "Name" = "8:Search for Settings"
+            "Folder" = "8:[TARGETDIR]"
+            "Depth" = "2:0"
+            "FileName" = "8:settings.xml"
+            "MinVesion" = "8:"
+            "MaxVersion" = "8:"
+            "MinSize" = "8:"
+            "MaxSize" = "8:"
+            "MinDate" = "8:"
+            "MaxDate" = "8:"
+            "Languages" = "8:"
+            "Property" = "8:EXISTS_SETTINGS"
+            }
         }
         "MsiBootstrapper"
         {
@@ -276,15 +334,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Sincronizador de Precios"
-        "ProductCode" = "8:{CB7BCECE-7985-43FD-8B89-3D871B0208A2}"
-        "PackageCode" = "8:{9C058637-641A-493F-9C09-6DE388F4B040}"
-        "UpgradeCode" = "8:{88CC6522-4483-467F-9249-2B4CF0A7C3CE}"
+        "ProductCode" = "8:{F295BA42-10C9-4CEA-BC55-BACDA54BF2A7}"
+        "PackageCode" = "8:{B471C0F1-854C-4B4D-A64D-F87BFDA55575}"
+        "UpgradeCode" = "8:{0C322D39-E1AD-4E0D-B5EA-FD048480CF77}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.0.1"
         "Manufacturer" = "8:Serna Sistemas"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -401,7 +459,7 @@
             {
             "Name" = "8:ProductSync"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Sincronizador"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
@@ -415,7 +473,7 @@
             {
             "Name" = "8:Ayuda.rtf"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Ayuda de la aplicación"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
@@ -429,7 +487,7 @@
             {
             "Name" = "8:ProductSync"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Sincronizador"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
@@ -792,8 +850,8 @@
                             "Type" = "3:15"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1258"
+                            "Setting" = "3:2"
+                            "Value" = "8:Por favor use Windows Update para comprobar actualizaciones críticas para el .NET Framework."
                             "DefaultValue" = "8:#1258"
                             "UsePlugInResources" = "11:TRUE"
                             }

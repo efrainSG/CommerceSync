@@ -72,7 +72,7 @@
                             <TextBox Name="txtServOrigen" Margin="120,10,10,0" VerticalAlignment="Top" />
                             <TextBox Name="txtBDOrigen" Margin="120,43,10,0" VerticalAlignment="Top" />
                             <TextBox Name="txtUsrOrigen" Margin="120,76,10,0" VerticalAlignment="Top" />
-                            <TextBox Name="txtPassOrigen" Margin="120,109,10,0" VerticalAlignment="Top" />
+                            <PasswordBox Name="txtPassOrigen" Margin="120,109,10,0" VerticalAlignment="Top" />
                             <CheckBox Name="chkSeguridadOrigen" Margin="120,142,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="Seguridad integrada" Grid.Column="0" Checked="chkSeguridadOrigen_Checked" />
                             <TextBox Name="txbConnStrOrigen" Margin="10,163,10,51" Text="Cadena de conexión: " TextWrapping="Wrap" IsReadOnly="True" />
 
@@ -84,7 +84,7 @@
                             <TextBox Name="txtServDestino" Margin="120,10,10,0" VerticalAlignment="Top" Grid.Column="1" />
                             <TextBox Name="txtBDDestino" Margin="120,43,10,0" VerticalAlignment="Top" Grid.Column="1" />
                             <TextBox Name="txtUsrDestino" Margin="120,76,10,0" VerticalAlignment="Top" Grid.Column="1" />
-                            <TextBox Name="txtPassDestino" Margin="120,109,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                            <PasswordBox Name="txtPassDestino" Margin="120,109,10,0" VerticalAlignment="Top" Grid.Column="1" />
                             <CheckBox Name="chkSeguridadDestino" Margin="120,142,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="Seguridad integrada" Grid.Column="1" Checked="chkSeguridadDestino_Checked" />
                             <TextBox Name="txbConnStrDestino" Margin="10,163,10,51" Text="Cadena de conexión: " TextWrapping="Wrap" Grid.Column="1" IsReadOnly="True" />
 
