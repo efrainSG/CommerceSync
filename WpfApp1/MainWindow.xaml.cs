@@ -190,6 +190,7 @@ namespace WpfApp1
                 fStream.Close();
 
             }
+
             #endregion
         }
 
@@ -363,20 +364,24 @@ namespace WpfApp1
         }
 
         private void btnOrigen_Click(object sender, RoutedEventArgs e) {
-            using (Conn = new SqlConnection(ConnStrModelOrigen.ToString())) {
-                using (Cmd = new SqlCommand() {
-                    Connection = Conn,
-                    CommandText = "SELECT CIDPRODUCTO as Id, CNOMBREPRODUCTO as Nombre, '' AS Descripcion, CCODIGOPRODUCTO as Codigo, CPRECIO1 as Precio FROM dbo.admProductos order by Id",
-                    CommandType = System.Data.CommandType.Text
-                }) {
-                    da = new SqlDataAdapter(Cmd);
-                    DataSet ds = new DataSet();
-                    da.Fill(ds);
-                    dgOrigen.ItemsSource = ds.Tables[0].DefaultView;
+            try {
+                using (Conn = new SqlConnection(ConnStrModelOrigen.ToString())) {
+                    using (Cmd = new SqlCommand() {
+                        Connection = Conn,
+                        CommandText = "SELECT CIDPRODUCTO as Id, CNOMBREPRODUCTO as Nombre, '' AS Descripcion, CCODIGOPRODUCTO as Codigo, CPRECIO1 as Precio FROM dbo.admProductos order by Id",
+                        CommandType = System.Data.CommandType.Text
+                    }) {
+                        da = new SqlDataAdapter(Cmd);
+                        DataSet ds = new DataSet();
+                        da.Fill(ds);
+                        dgOrigen.ItemsSource = ds.Tables[0].DefaultView;
+                    }
                 }
+                btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
+                lblOrigen.Content = "Origen: " + ConnStrModelOrigen.DataSource + "." + ConnStrModelOrigen.Catalog;
+            } catch (Exception ex) {
+                lblOrigen.Content = "Origen: " + ex.Message;
             }
-            btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
-            lblOrigen.Content = "Origen: " + ConnStrModelOrigen.DataSource + "." + ConnStrModelOrigen.Catalog;
         }
 
         private void btnDestino_Click(object sender, RoutedEventArgs e) {
@@ -415,8 +420,8 @@ namespace WpfApp1
                 Width = 50D
             });
             gvErroresOrigen.Columns.Add(new GridViewColumn() {
-                Header = "SKU",
-                DisplayMemberBinding = new Binding("SKU")
+                Header = "Código",
+                DisplayMemberBinding = new Binding("Codigo")
             });
             gvErroresOrigen.Columns.Add(new GridViewColumn() {
                 Header = "Nombre",
@@ -432,63 +437,50 @@ namespace WpfApp1
                 Width = 50D
             });
             gvErroresDestino.Columns.Add(new GridViewColumn() {
-                Header = "SKU",
-                DisplayMemberBinding = new Binding("SKU")
+                Header = "Código",
+                DisplayMemberBinding = new Binding("Nombre")
             });
             gvErroresDestino.Columns.Add(new GridViewColumn() {
                 Header = "Nombre",
-                DisplayMemberBinding = new Binding("Nombre")
+                DisplayMemberBinding = new Binding("ShortDescription")
             });
             gvErroresDestino.Columns.Add(new GridViewColumn() {
                 Header = "Precio",
                 DisplayMemberBinding = new Binding("Precio")
             });
             lstErroresOrigen.Items.Clear();
-            lstErroresDestino.Items.Clear();
             lstErroresOrigen.View = gvErroresOrigen;
-            lstErroresDestino.View = gvErroresDestino;
 
-            while (i <= finOrigen && j <= finDestino) {
-                if (i < finOrigen)
-                    filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
-                if (j < finDestino)
+            bool EN_ORIGEN = false;
+            for (i = 0; i < finOrigen; i++) {
+                filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
+                for (j = 0; j < finDestino; j++) {
                     filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
-                if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
-                    int IdO = int.Parse(filaOrigen[0].ToString()),
-                        IdD = int.Parse(filaDestino[0].ToString());
-                    if (IdO < IdD) {
-                        i++;
-                        lstErroresOrigen.Items.Add(new ResultadoItem() {
-                            Id = int.Parse(filaOrigen[0].ToString()),
-                            SKU = filaOrigen[3].ToString(),
-                            Nombre = filaOrigen[1].ToString(),
-                            Precio = filaOrigen[4].ToString()
-                        });
-                    }
-                    if (IdO == IdD) {
-                        if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
-                            sbQuery.AppendLine(
-                                    string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaOrigen[0].ToString())
-                                    //string.Format("UPDATE dbo.Productos_2 SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaOrigen[0].ToString())
-                                    );
-                        i++;
-                        j++;
-                    }
-                    if (IdO > IdD) {
-                        j++;
-                        lstErroresDestino.Items.Add(new ResultadoItem() {
-                            Id = int.Parse(filaDestino[0].ToString()),
-                            SKU = filaDestino[3].ToString(),
-                            Nombre = filaDestino[1].ToString(),
-                            Precio = filaDestino[4].ToString()
-                        });
+                    if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
+                        string IdO = filaOrigen[3].ToString().Trim(),
+                            IdD = filaDestino[1].ToString().Trim();
+                        if (IdO == IdD) {
+                            if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
+                                sbQuery.AppendLine(
+                                        string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
+                                        );
+                            EN_ORIGEN = true;
+                            break;
+                        }
                     }
                 }
+                if (!EN_ORIGEN) {
+                    lstErroresOrigen.Items.Add(new ResultadoItem() {
+                        Id = int.Parse(filaOrigen[0].ToString()),
+                        SKU = filaOrigen[3].ToString(),
+                        Nombre = filaOrigen[1].ToString(),
+                        Precio = filaOrigen[4].ToString()
+                    });
+                }
+                EN_ORIGEN = false;
             }
             txtQuery.Text = sbQuery.ToString();
-            tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) ||
-                (lstErroresOrigen.Items.Count > 0) ||
-                (lstErroresDestino.Items.Count > 0);
+            tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) || (lstErroresOrigen.Items.Count > 0);
             btnSincronizar.IsEnabled = !string.IsNullOrEmpty(txtQuery.Text);
         }
 
@@ -505,8 +497,12 @@ namespace WpfApp1
                         Conn.Close();
                     }
                 }
-            }catch(Exception ex) {
-
+                System.Windows.Forms.MessageBox.Show("Se realizó la operación correctamente. Se procede a verificar los cambios", "Sincronizador", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                btnOrigen_Click(sender, e);
+                btnDestino_Click(sender, e);
+                btnAnalizar_Click(sender, e);
+            } catch (Exception ex) {
+                System.Windows.Forms.MessageBox.Show("Ocurrió el siguiente error al intentar sincronizar: " + ex.Message, "Sincronizador", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
             }
         }
 
