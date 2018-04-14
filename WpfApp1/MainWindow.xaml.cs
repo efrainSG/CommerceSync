@@ -172,7 +172,7 @@ namespace WpfApp1
             txtBDOrigen.Text = ConnStrModelOrigen.Catalog;
             txtUsrOrigen.Text = ConnStrModelOrigen.User;
             chkSeguridadOrigen.IsChecked = ConnStrModelOrigen.IntSecurity;
-
+            
             txtServDestino.Text = ConnStrModelDestino.DataSource;
             txtBDDestino.Text = ConnStrModelDestino.Catalog;
             txtUsrDestino.Text = ConnStrModelDestino.User;
