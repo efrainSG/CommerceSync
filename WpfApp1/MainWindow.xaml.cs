@@ -172,7 +172,7 @@ namespace WpfApp1
             txtBDOrigen.Text = ConnStrModelOrigen.Catalog;
             txtUsrOrigen.Text = ConnStrModelOrigen.User;
             chkSeguridadOrigen.IsChecked = ConnStrModelOrigen.IntSecurity;
-            
+
             txtServDestino.Text = ConnStrModelDestino.DataSource;
             txtBDDestino.Text = ConnStrModelDestino.Catalog;
             txtUsrDestino.Text = ConnStrModelDestino.User;
@@ -448,37 +448,82 @@ namespace WpfApp1
                 Header = "Precio",
                 DisplayMemberBinding = new Binding("Precio")
             });
-            lstErroresOrigen.Items.Clear();
-            lstErroresOrigen.View = gvErroresOrigen;
 
-            bool EN_ORIGEN = false;
-            for (i = 0; i < finOrigen; i++) {
-                filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
-                for (j = 0; j < finDestino; j++) {
+            lstErroresOrigen.Items.Clear();
+            lstErroresDestino.Items.Clear();
+            lstErroresOrigen.View = gvErroresOrigen;
+            lstErroresDestino.View = gvErroresDestino;
+
+            while (i <= finOrigen && j <= finDestino) {
+                if (i < finOrigen)
+                    filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
+                if (j < finDestino)
                     filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
-                    if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
-                        string IdO = filaOrigen[3].ToString().Trim(),
-                            IdD = filaDestino[1].ToString().Trim();
-                        if (IdO == IdD) {
-                            if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
-                                sbQuery.AppendLine(
-                                        string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
-                                        );
-                            EN_ORIGEN = true;
-                            break;
-                        }
+                if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
+                    string IdO = filaOrigen[3].ToString(),
+                        IdD = filaDestino[1].ToString();
+                    int cmp = IdO.CompareTo(IdD);
+                    if (cmp < 0) {
+                        i++;
+                        lstErroresOrigen.Items.Add(new ResultadoItem() {
+                            Id = int.Parse(filaOrigen[0].ToString()),
+                            SKU = filaOrigen[3].ToString(),
+                            Nombre = filaOrigen[1].ToString(),
+                            Precio = filaOrigen[4].ToString()
+                        });
+                    }
+                    if (cmp == 0) {
+                        if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
+                            sbQuery.AppendLine(
+                                    string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
+                                    );
+                        i++;
+                        j++;
+                    }
+                    if (cmp > 0) {
+                        j++;
+                        lstErroresDestino.Items.Add(new ResultadoItem() {
+                            Id = int.Parse(filaDestino[0].ToString()),
+                            SKU = filaDestino[3].ToString(),
+                            Nombre = filaDestino[1].ToString(),
+                            Precio = filaDestino[4].ToString()
+                        });
                     }
                 }
-                if (!EN_ORIGEN) {
-                    lstErroresOrigen.Items.Add(new ResultadoItem() {
-                        Id = int.Parse(filaOrigen[0].ToString()),
-                        SKU = filaOrigen[3].ToString(),
-                        Nombre = filaOrigen[1].ToString(),
-                        Precio = filaOrigen[4].ToString()
-                    });
-                }
-                EN_ORIGEN = false;
             }
+
+            //lstErroresOrigen.Items.Clear();
+            //lstErroresOrigen.View = gvErroresOrigen;
+
+            //bool EN_ORIGEN = false;
+
+            //for (i = 0; i < finOrigen; i++) {
+            //    filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
+            //    for (j = 0; j < finDestino; j++) {
+            //        filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
+            //        if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
+            //            string IdO = filaOrigen[3].ToString().Trim(),
+            //                IdD = filaDestino[1].ToString().Trim();
+            //            if (IdO == IdD) {
+            //                if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
+            //                    sbQuery.AppendLine(
+            //                            string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
+            //                            );
+            //                EN_ORIGEN = true;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    if (!EN_ORIGEN) {
+            //        lstErroresOrigen.Items.Add(new ResultadoItem() {
+            //            Id = int.Parse(filaOrigen[0].ToString()),
+            //            SKU = filaOrigen[3].ToString(),
+            //            Nombre = filaOrigen[1].ToString(),
+            //            Precio = filaOrigen[4].ToString()
+            //        });
+            //    }
+            //    EN_ORIGEN = false;
+            //}
             txtQuery.Text = sbQuery.ToString();
             tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) || (lstErroresOrigen.Items.Count > 0);
             btnSincronizar.IsEnabled = !string.IsNullOrEmpty(txtQuery.Text);
