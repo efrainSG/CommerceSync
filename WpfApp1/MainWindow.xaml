@@ -104,11 +104,14 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBox Name="txtQuery" Margin="10" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+                    <TextBox Name="txtQuery" Margin="10,10,10,43" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+                    <Label Name="lblStatQuery" Content="" Margin="10" Grid.Column="0" Grid.Row ="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
                     <Label Content="No existen en el destino" Margin="10" Grid.Column="0" VerticalAlignment="Top" />
-                    <ListView Name="lstErroresOrigen" Margin="10,43,10,10" Grid.Column="0" Grid.Row="0" />
+                    <ListView Name="lstErroresOrigen" Margin="10,43,10,43" Grid.Column="0" Grid.Row="0" />
+                    <Label Name="lblStatOrigen" Content="" Margin="10" Grid.Column="0" Grid.Row ="0" VerticalAlignment="Bottom"/>
                     <Label Content="No existen en el origen" Margin="10" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" />
-                    <ListView Name="lstErroresDestino" Margin="10,43,10,10" Grid.Column="1" Grid.Row="0" />
+                    <ListView Name="lstErroresDestino" Margin="10,43,10,43" Grid.Column="1" Grid.Row="0" />
+                    <Label Name="lblStatDestino" Content="" Margin="10" Grid.Column="1" Grid.Row ="0" VerticalAlignment="Bottom"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Ayuda" Name="tabAyuda">

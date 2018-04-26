@@ -368,7 +368,12 @@ namespace WpfApp1
                 using (Conn = new SqlConnection(ConnStrModelOrigen.ToString())) {
                     using (Cmd = new SqlCommand() {
                         Connection = Conn,
-                        CommandText = "SELECT CIDPRODUCTO as Id, CNOMBREPRODUCTO as Nombre, '' AS Descripcion, CCODIGOPRODUCTO as Codigo, CPRECIO1 as Precio FROM dbo.admProductos order by Id",
+                        CommandText = @"SELECT  LTRIM(RTRIM(CIDPRODUCTO)) Id, LTRIM(RTRIM(CNOMBREPRODUCTO)) Nombre,
+                                                '' Descripcion,
+                                                LTRIM(RTRIM(CCODIGOPRODUCTO)) Codigo, CPRECIO1 Precio
+                                        FROM    dbo.admProductos
+                                        ORDER   BY LTRIM(RTRIM(CIDPRODUCTO))
+                                        COLLATE Traditional_Spanish_ci_ai ASC",
                         CommandType = System.Data.CommandType.Text
                     }) {
                         da = new SqlDataAdapter(Cmd);
@@ -381,6 +386,9 @@ namespace WpfApp1
                 lblOrigen.Content = "Origen: " + ConnStrModelOrigen.DataSource + "." + ConnStrModelOrigen.Catalog;
             } catch (Exception ex) {
                 lblOrigen.Content = "Origen: " + ex.Message;
+            } finally {
+                lblStatOrigen.Content = string.Empty;
+                lblStatQuery.Content = string.Empty;
             }
         }
 
@@ -389,7 +397,11 @@ namespace WpfApp1
                 using (Conn = new SqlConnection(ConnStrModelDestino.ToString())) {
                     using (Cmd = new SqlCommand() {
                         Connection = Conn,
-                        CommandText = "select Id, Name AS Nombre, ShortDescription, SKU, Price AS Precio from dbo.Product order by Id",
+                        CommandText = @"SELECT  LTRIM(RTRIM(Id)) Id, LTRIM(RTRIM(Name)) Nombre,
+                                                LTRIM(RTRIM(ShortDescription) ShortDescription,
+                                                LTRIM(RTRIM(SKU)), Price AS Precio
+                                        FROM    dbo.Product order by LTRIM(RTRIM(Id))
+                                        COLLATE Traditional_Spanish_ci_ai ASC",
                         CommandType = System.Data.CommandType.Text
                     }) {
                         da = new SqlDataAdapter(Cmd);
@@ -402,18 +414,22 @@ namespace WpfApp1
                 lblDestino.Content = "Destino: " + ConnStrModelDestino.DataSource + "." + ConnStrModelDestino.Catalog;
             } catch (Exception ex) {
                 lblDestino.Content = "Destino: " + ex.Message;
+            } finally {
+                lblStatDestino.Content = string.Empty;
+                lblStatQuery.Content = string.Empty;
             }
         }
 
         private void btnAnalizar_Click(object sender, RoutedEventArgs e) {
             GridView gvErroresOrigen = new GridView(), gvErroresDestino = new GridView();
-            int i = 0, j = 0, finOrigen, finDestino;
+            int i = 0, j = 0, k = 0, finOrigen, finDestino;
             StringBuilder sbQuery = new StringBuilder();
             var dvOrigen = (dgOrigen.ItemsSource as DataView).Table;
             var dvDestino = (dgDestino.ItemsSource as DataView).Table;
             List<object> filaOrigen = new List<object>(), filaDestino = new List<object>();
             finOrigen = dvOrigen.Rows.Count;
             finDestino = dvDestino.Rows.Count;
+
             gvErroresOrigen.Columns.Add(new GridViewColumn() {
                 Header = "Id",
                 DisplayMemberBinding = new Binding("Id"),
@@ -473,10 +489,12 @@ namespace WpfApp1
                         });
                     }
                     if (cmp == 0) {
-                        if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
+                        if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString())) {
                             sbQuery.AppendLine(
                                     string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
                                     );
+                            k++;
+                        }
                         i++;
                         j++;
                     }
@@ -492,41 +510,12 @@ namespace WpfApp1
                 }
             }
 
-            //lstErroresOrigen.Items.Clear();
-            //lstErroresOrigen.View = gvErroresOrigen;
-
-            //bool EN_ORIGEN = false;
-
-            //for (i = 0; i < finOrigen; i++) {
-            //    filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
-            //    for (j = 0; j < finDestino; j++) {
-            //        filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
-            //        if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
-            //            string IdO = filaOrigen[3].ToString().Trim(),
-            //                IdD = filaDestino[1].ToString().Trim();
-            //            if (IdO == IdD) {
-            //                if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString()))
-            //                    sbQuery.AppendLine(
-            //                            string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
-            //                            );
-            //                EN_ORIGEN = true;
-            //                break;
-            //            }
-            //        }
-            //    }
-            //    if (!EN_ORIGEN) {
-            //        lstErroresOrigen.Items.Add(new ResultadoItem() {
-            //            Id = int.Parse(filaOrigen[0].ToString()),
-            //            SKU = filaOrigen[3].ToString(),
-            //            Nombre = filaOrigen[1].ToString(),
-            //            Precio = filaOrigen[4].ToString()
-            //        });
-            //    }
-            //    EN_ORIGEN = false;
-            //}
             txtQuery.Text = sbQuery.ToString();
             tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) || (lstErroresOrigen.Items.Count > 0);
             btnSincronizar.IsEnabled = !string.IsNullOrEmpty(txtQuery.Text);
+            lblStatOrigen.Content = "Registros no encontrados en la tabla destino: " + lstErroresOrigen.Items.Count.ToString();
+            lblStatDestino.Content = "Registros no encontrados en la tabla origen: " + lstErroresDestino.Items.Count.ToString();
+            lblStatQuery.Content = "Registros empatados por actualizar: " + k.ToString();
         }
 
         private void btnSincronizar_Click(object sender, RoutedEventArgs e) {
