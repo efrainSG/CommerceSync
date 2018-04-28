@@ -398,7 +398,7 @@ namespace WpfApp1
                     using (Cmd = new SqlCommand() {
                         Connection = Conn,
                         CommandText = @"SELECT  LTRIM(RTRIM(Id)) Id, LTRIM(RTRIM(Name)) Nombre,
-                                                LTRIM(RTRIM(ShortDescription) ShortDescription,
+                                                LTRIM(RTRIM(ShortDescription)) ShortDescription,
                                                 LTRIM(RTRIM(SKU)), Price AS Precio
                                         FROM    dbo.Product order by LTRIM(RTRIM(Id))
                                         COLLATE Traditional_Spanish_ci_ai ASC",

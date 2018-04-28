@@ -21,7 +21,6 @@ C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\bin\Debug\media\Ayuda.rtf
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\bin\Debug\Sincronizador.exe.config
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\bin\Debug\Sincronizador.exe
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\bin\Debug\Sincronizador.pdb
-C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\ProductSync.csprojResolveAssemblyReference.cache
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\FrmLogin.g.cs
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\MainWindow.g.cs
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\App.g.cs
