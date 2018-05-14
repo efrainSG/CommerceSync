@@ -368,11 +368,11 @@ namespace WpfApp1
                 using (Conn = new SqlConnection(ConnStrModelOrigen.ToString())) {
                     using (Cmd = new SqlCommand() {
                         Connection = Conn,
-                        CommandText = @"SELECT  LTRIM(RTRIM(CIDPRODUCTO)) Id, LTRIM(RTRIM(CNOMBREPRODUCTO)) Nombre,
+                        CommandText = @"SELECT  CAST(LTRIM(RTRIM(CIDPRODUCTO)) AS VARCHAR(MAX)) Id, CAST(LTRIM(RTRIM(CNOMBREPRODUCTO)) AS VARCHAR(MAX)) Nombre,
                                                 '' Descripcion,
-                                                LTRIM(RTRIM(CCODIGOPRODUCTO)) Codigo, CPRECIO1 Precio
+                                                CAST(LTRIM(RTRIM(CCODIGOPRODUCTO)) AS VARCHAR(MAX)) Codigo, CPRECIO1 Precio
                                         FROM    dbo.admProductos
-                                        ORDER   BY LTRIM(RTRIM(CCODIGOPRODUCTO))
+                                        ORDER   BY CAST(LTRIM(RTRIM(CCODIGOPRODUCTO)) AS VARCHAR(MAX))
                                         COLLATE Traditional_Spanish_ci_ai ASC",
                         CommandType = System.Data.CommandType.Text
                     }) {
@@ -380,6 +380,8 @@ namespace WpfApp1
                         DataSet ds = new DataSet();
                         da.Fill(ds);
                         dgOrigen.ItemsSource = ds.Tables[0].DefaultView;
+                        lblTotalOrigen.Content = "Registros en Origen: " + ds.Tables[0].Rows.Count.ToString();
+
                     }
                 }
                 btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
@@ -397,11 +399,11 @@ namespace WpfApp1
                 using (Conn = new SqlConnection(ConnStrModelDestino.ToString())) {
                     using (Cmd = new SqlCommand() {
                         Connection = Conn,
-                        CommandText = @"SELECT  LTRIM(RTRIM(Id)) Id, LTRIM(RTRIM(Name)) Nombre,
-                                                LTRIM(RTRIM(ShortDescription)) ShortDescription,
-                                                LTRIM(RTRIM(SKU)), Price AS Precio
+                        CommandText = @"SELECT  CAST(LTRIM(RTRIM(Id)) AS VARCHAR(MAX)) Id, CAST(LTRIM(RTRIM(Name)) AS VARCHAR(MAX)) Nombre,
+                                                CAST(LTRIM(RTRIM(ShortDescription)) AS VARCHAR(MAX)) ShortDescription,
+                                                CAST(LTRIM(RTRIM(SKU)) AS VARCHAR(MAX)) SKU, Price AS Precio
                                         FROM    dbo.Product
-                                        ORDER   BY LTRIM(RTRIM(Name))
+                                        ORDER   BY CAST(LTRIM(RTRIM(Name)) AS VARCHAR(MAX))
                                         COLLATE Traditional_Spanish_ci_ai ASC",
                         CommandType = System.Data.CommandType.Text
                     }) {
@@ -409,6 +411,7 @@ namespace WpfApp1
                         DataSet ds = new DataSet();
                         da.Fill(ds);
                         dgDestino.ItemsSource = ds.Tables[0].DefaultView;
+                        lblTotalDestino.Content = "Registros en Destino: " + ds.Tables[0].Rows.Count.ToString();
                     }
                 }
                 btnAnalizar.IsEnabled = (dgOrigen.Items.Count > 0 && dgDestino.Items.Count > 0);
@@ -438,7 +441,7 @@ namespace WpfApp1
             });
             gvErroresOrigen.Columns.Add(new GridViewColumn() {
                 Header = "Código",
-                DisplayMemberBinding = new Binding("Codigo")
+                DisplayMemberBinding = new Binding("SKU")
             });
             gvErroresOrigen.Columns.Add(new GridViewColumn() {
                 Header = "Nombre",
@@ -448,6 +451,7 @@ namespace WpfApp1
                 Header = "Precio",
                 DisplayMemberBinding = new Binding("Precio")
             });
+
             gvErroresDestino.Columns.Add(new GridViewColumn() {
                 Header = "Id",
                 DisplayMemberBinding = new Binding("Id"),
@@ -455,15 +459,18 @@ namespace WpfApp1
             });
             gvErroresDestino.Columns.Add(new GridViewColumn() {
                 Header = "Código",
-                DisplayMemberBinding = new Binding("Nombre")
+                DisplayMemberBinding = new Binding("SKU"),
+                Width = 255
             });
             gvErroresDestino.Columns.Add(new GridViewColumn() {
                 Header = "Nombre",
-                DisplayMemberBinding = new Binding("ShortDescription")
+                DisplayMemberBinding = new Binding("Nombre"),
+                Width = 255
             });
             gvErroresDestino.Columns.Add(new GridViewColumn() {
                 Header = "Precio",
-                DisplayMemberBinding = new Binding("Precio")
+                DisplayMemberBinding = new Binding("Precio"),
+                Width = 255
             });
 
             lstErroresOrigen.Items.Clear();
@@ -483,13 +490,20 @@ namespace WpfApp1
                     if (cmp < 0) {
                         lstErroresOrigen.Items.Add(new ResultadoItem() {
                             Id = int.Parse(filaOrigen[0].ToString()),
-                            SKU = filaOrigen[3].ToString(),
+                            SKU = filaOrigen[3].ToString().ToUpperInvariant(),
                             Nombre = filaOrigen[1].ToString(),
                             Precio = filaOrigen[4].ToString()
                         });
                         i++;
                     } else if (cmp == 0) {
-                        if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString())) {
+                        if (chkDistintos.IsChecked.HasValue ? chkDistintos.IsChecked.Value : false) {
+                            if (decimal.Parse(filaOrigen[4].ToString()) != decimal.Parse(filaDestino[4].ToString())) {
+                                sbQuery.AppendLine(
+                                        string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
+                                        );
+                                k++;
+                            }
+                        } else {
                             sbQuery.AppendLine(
                                     string.Format("UPDATE dbo.Product SET Price = '{0}' WHERE Id = '{1}'; ", filaOrigen[4].ToString(), filaDestino[0].ToString())
                                     );
@@ -500,8 +514,8 @@ namespace WpfApp1
                     } else if (cmp > 0) {
                         lstErroresDestino.Items.Add(new ResultadoItem() {
                             Id = int.Parse(filaDestino[0].ToString()),
-                            SKU = filaDestino[3].ToString(),
-                            Nombre = filaDestino[1].ToString(),
+                            SKU = filaDestino[1].ToString(),
+                            Nombre = filaDestino[2].ToString(),
                             Precio = filaDestino[4].ToString()
                         });
                         j++;

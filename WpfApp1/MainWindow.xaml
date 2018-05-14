@@ -16,11 +16,14 @@
                     </Grid.ColumnDefinitions>
                     <Button Name="btnOrigen" Content="Leer origen" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnOrigen_Click" />
                     <Button Name="btnDestino" Content="Leer destino" Margin="95,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnDestino_Click"  />
+                    <CheckBox Name="chkDistintos" Content="Solo precios distintos" Margin="265,21,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" IsChecked="True" Height="21" Width="140" Grid.ColumnSpan="2" />
                     <Button Name="btnAnalizar" Content="Analizar" Margin="180,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnAnalizar_Click" IsEnabled="False" />
-                    <Button Name="btnSincronizar" Content="Sincronizar" Margin="265,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnSincronizar_Click" IsEnabled="False" />
+                    <Button Name="btnSincronizar" Content="Sincronizar" Margin="17,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnSincronizar_Click" IsEnabled="False" Grid.Column="1" />
                     <Label Name="lblOrigen" Content="Origen:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="0" />
                     <Label Name="lblDestino" Content="Destino:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="1" />
-                    <DataGrid Name="dgOrigen" Margin="10,84,10,10" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                    <Label Name="lblTotalOrigen" Content="Registros en Origen:" Margin="10,51,10,0" VerticalAlignment="Bottom" Grid.Column="0" />
+                    <Label Name="lblTotalDestino" Content="Registros en Destino:" Margin="10,51,10,0" VerticalAlignment="Bottom" Grid.Column="1" />
+                    <DataGrid Name="dgOrigen" Margin="10,84,10,33" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
                         <DataGrid.Columns>
                             <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
                             <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
@@ -29,7 +32,7 @@
                             <DataGridTextColumn Header="Precio" Binding="{Binding Precio}" Width="auto" MinWidth="100" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <DataGrid Name="dgDestino" Margin="10,84,10,10" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                    <DataGrid Name="dgDestino" Margin="10,84,10,33" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
                         <DataGrid.Columns>
                             <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
                             <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
@@ -38,6 +41,26 @@
                             <DataGridTextColumn Header="Precio" Binding="{Binding Precio}" Width="auto" MinWidth="100" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Name="tabQuery" Header="Script de consulta" IsEnabled="False">
+                <Grid Name="gridQuery">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBox Name="txtQuery" Margin="10,10,10,43" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+                    <Label Name="lblStatQuery" Content="" Margin="10" Grid.Column="0" Grid.Row ="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
+                    <Label Content="No existen en el destino" Margin="10" Grid.Column="0" VerticalAlignment="Top" />
+                    <ListView Name="lstErroresOrigen" Margin="10,43,10,43" Grid.Column="0" Grid.Row="0" />
+                    <Label Name="lblStatOrigen" Content="" Margin="10" Grid.Column="0" Grid.Row ="0" VerticalAlignment="Bottom"/>
+                    <Label Content="No existen en el origen" Margin="10" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" />
+                    <ListView Name="lstErroresDestino" Margin="10,43,10,43" Grid.Column="1" Grid.Row="0" />
+                    <Label Name="lblStatDestino" Content="" Margin="10" Grid.Column="1" Grid.Row ="0" VerticalAlignment="Bottom"/>
                 </Grid>
             </TabItem>
             <TabItem Name="tabConfiguracion" Header="Configuración">
@@ -92,26 +115,6 @@
                             <Button Name="btnCancealrServidores" Grid.Column="1" Content="Revertir" Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{DynamicResource negButton}" Click="btnCancealrServidores_Click" />
                         </Grid>
                     </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem Name="tabQuery" Header="Script de consulta" IsEnabled="False">
-                <Grid Name="gridQuery">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBox Name="txtQuery" Margin="10,10,10,43" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
-                    <Label Name="lblStatQuery" Content="" Margin="10" Grid.Column="0" Grid.Row ="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
-                    <Label Content="No existen en el destino" Margin="10" Grid.Column="0" VerticalAlignment="Top" />
-                    <ListView Name="lstErroresOrigen" Margin="10,43,10,43" Grid.Column="0" Grid.Row="0" />
-                    <Label Name="lblStatOrigen" Content="" Margin="10" Grid.Column="0" Grid.Row ="0" VerticalAlignment="Bottom"/>
-                    <Label Content="No existen en el origen" Margin="10" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" />
-                    <ListView Name="lstErroresDestino" Margin="10,43,10,43" Grid.Column="1" Grid.Row="0" />
-                    <Label Name="lblStatDestino" Content="" Margin="10" Grid.Column="1" Grid.Row ="0" VerticalAlignment="Bottom"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Ayuda" Name="tabAyuda">
