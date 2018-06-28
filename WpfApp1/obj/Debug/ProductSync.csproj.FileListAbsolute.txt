@@ -35,3 +35,5 @@ C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\ProductSync.csproj
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\ProductSync.csproj.CoreCompileInputs.cache
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\Sincronizador.exe
 C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\Sincronizador.pdb
+C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\ProductSync.csproj.ResolveComReference.cache
+C:\Users\efrai\Documents\repos\CommerceSync\WpfApp1\obj\Debug\ProductSync.csprojAssemblyReference.cache

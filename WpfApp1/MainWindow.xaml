@@ -8,7 +8,7 @@
         Title="Sincronizador" Height="700" Width="800" WindowStartupLocation="CenterScreen">
     <Grid Name="GridPpal">
         <TabControl Grid.ColumnSpan="2" Name="TabCtrlPpal">
-            <TabItem Header="Sincronización" Name="tabSincronizacion">
+            <TabItem Header="Sincronización de precios" Name="tabSincronizacion">
                 <Grid Name="GridSincronizacion">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -43,6 +43,44 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
+            <TabItem Name="tabQueryExistencias" Header="Sincronizacíon de existencias">
+                <Grid Name="gridExistencias">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+
+                    </Grid.RowDefinitions>
+                    <Button Name="btnOrigenExist" Content="Leer origen" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnOrigenExist_Click" />
+                    <Button Name="btnDestinoExist" Content="Leer destino" Margin="95,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnDestinoExist_Click"  />
+                    <CheckBox Name="chkDistintosExist" Content="Solo existencias distintas" Margin="265,21,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" IsChecked="True" Height="21" Width="140" Grid.ColumnSpan="2" />
+                    <Button Name="btnAnalizarExist" Content="Analizar" Margin="180,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnAnalizarExist_Click" IsEnabled="False" />
+                    <Button Name="btnSincronizarExist" Content="Sincronizar" Margin="17,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnSincronizarExist_Click" IsEnabled="False" Grid.Column="1" />
+                    <Label Name="lblOrigenExist" Content="Origen:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="0" />
+                    <Label Name="lblDestinoExist" Content="Destino:" Margin="10,51,10,0" VerticalAlignment="Top" Grid.Column="1" />
+                    <Label Name="lblTotalOrigenExist" Content="Registros en Origen:" Margin="10,51,10,0" VerticalAlignment="Bottom" Grid.Column="0" />
+                    <Label Name="lblTotalDestinoExist" Content="Registros en Destino:" Margin="10,51,10,0" VerticalAlignment="Bottom" Grid.Column="1" />
+                    <DataGrid Name="dgOrigenExist" Margin="10,84,10,33" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Código" Binding="{Binding Codigo}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Producto" Binding="{Binding Nombre}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Existencias" Binding="{Binding Existencias}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <DataGrid Name="dgDestinoExist" Margin="10,84,10,33" Grid.Column="1" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="" Binding="{Binding Actualizar}" Width="30" />
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Código" Binding="{Binding Nombre}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Producto" Binding="{Binding ShortDescription}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Existencias" Binding="{Binding Existencias}" Width="auto" MinWidth="100" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
             <TabItem Name="tabQuery" Header="Script de consulta" IsEnabled="False">
                 <Grid Name="gridQuery">
                     <Grid.ColumnDefinitions>
@@ -56,10 +94,24 @@
                     <TextBox Name="txtQuery" Margin="10,10,10,43" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
                     <Label Name="lblStatQuery" Content="" Margin="10" Grid.Column="0" Grid.Row ="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
                     <Label Content="No existen en el destino" Margin="10" Grid.Column="0" VerticalAlignment="Top" />
-                    <ListView Name="lstErroresOrigen" Margin="10,43,10,43" Grid.Column="0" Grid.Row="0" />
+                    <ListView Name="lstErroresOrigen" Margin="10,43,10,43" Grid.Column="0" Grid.Row="0">
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copiar" Name="CopiarOrigen" Click="CopiarOrigen_Click"/>
+                                <MenuItem Header="Exportar..." Name="ExportarOrigen" Click="ExportarOrigen_Click"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
                     <Label Name="lblStatOrigen" Content="" Margin="10" Grid.Column="0" Grid.Row ="0" VerticalAlignment="Bottom"/>
                     <Label Content="No existen en el origen" Margin="10" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" />
-                    <ListView Name="lstErroresDestino" Margin="10,43,10,43" Grid.Column="1" Grid.Row="0" />
+                    <ListView Name="lstErroresDestino" Margin="10,43,10,43" Grid.Column="1" Grid.Row="0" >
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copiar" Name="CopiarDestino" Click="CopiarDestino_Click"/>
+                                <MenuItem Header="Exportar..." Name="ExportarDestino" Click="ExportarDestino_Click"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
                     <Label Name="lblStatDestino" Content="" Margin="10" Grid.Column="1" Grid.Row ="0" VerticalAlignment="Bottom"/>
                 </Grid>
             </TabItem>
