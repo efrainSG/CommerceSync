@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Media;
 using System.Xml;
 
 namespace WpfApp1
@@ -593,7 +594,7 @@ namespace WpfApp1
                     ws.Cells[i + 1, 3] = lvi.SKU;
                     ws.Cells[i + 1, 4] = lvi.Precio;
                 }
-            }catch (Exception ex) {
+            } catch (Exception ex) {
 
             }
         }
@@ -601,12 +602,12 @@ namespace WpfApp1
         private void CopiarOrigen_Click(object sender, RoutedEventArgs e) {
             StringBuilder sb = new StringBuilder();
             try {
-            foreach (ResultadoItem item in lstErroresOrigen.Items) {
-                sb.Append(item.Id.ToString() + "\t");
-                sb.Append(item.Nombre.ToString() + "\t");
-                sb.Append(item.SKU.ToString() + "\t");
-                sb.Append(item.Precio.ToString() + "\n");
-            }
+                foreach (ResultadoItem item in lstErroresOrigen.Items) {
+                    sb.Append(item.Id.ToString() + "\t");
+                    sb.Append(item.Nombre.ToString() + "\t");
+                    sb.Append(item.SKU.ToString() + "\t");
+                    sb.Append(item.Precio.ToString() + "\n");
+                }
             } catch (Exception ex) {
 
             } finally {
@@ -620,7 +621,7 @@ namespace WpfApp1
                     using (Cmd = new SqlCommand() {
                         Connection = Conn,
                         CommandText = @"
-select  CAST(LTRIM(RTRIM(P.CIDPRODUCTO)) AS VARCHAR(MAX)) IdProducto,
+select  CAST(LTRIM(RTRIM(P.CIDPRODUCTO)) AS VARCHAR(MAX)) Id,
 		CAST(LTRIM(RTRIM(P.CNOMBREPRODUCTO)) AS VARCHAR(MAX)) Nombre,
 		CAST(LTRIM(RTRIM(P.CCODIGOPRODUCTO)) AS VARCHAR(MAX)) Codigo,
 		ISNULL(EC.cEntradasPeriodo1 + EC.cEntradasPeriodo2 +
@@ -644,6 +645,12 @@ ORDER   BY CAST(LTRIM(RTRIM(P.CCODIGOPRODUCTO)) AS VARCHAR(MAX))
 		COLLATE Traditional_Spanish_ci_ai ASC",
                         CommandType = System.Data.CommandType.Text
                     }) {
+//                        Cmd.CommandText = @"
+//select	CIDPRODUCTO Id, CNOMBREPRODUCTO Nombre, CCODIGOPRODUCTO Codigo, NULL Existencias
+//from	admProductos
+//ORDER   BY CAST(LTRIM(RTRIM(CCODIGOPRODUCTO)) AS VARCHAR(MAX))
+//		COLLATE Traditional_Spanish_ci_ai ASC
+//";
                         da = new SqlDataAdapter(Cmd);
                         DataSet ds = new DataSet();
                         da.Fill(ds);
@@ -705,101 +712,133 @@ ORDER   BY CAST(LTRIM(RTRIM(Name)) AS VARCHAR(MAX))
             finOrigen = dvOrigen.Rows.Count;
             finDestino = dvDestino.Rows.Count;
 
-            gvErroresOrigen.Columns.Add(new GridViewColumn() {
-                Header = "Id",
-                DisplayMemberBinding = new Binding("Id"),
-                Width = 50D
-            });
-            gvErroresOrigen.Columns.Add(new GridViewColumn() {
-                Header = "Código",
-                DisplayMemberBinding = new Binding("SKU")
-            });
-            gvErroresOrigen.Columns.Add(new GridViewColumn() {
-                Header = "Nombre",
-                DisplayMemberBinding = new Binding("Nombre")
-            });
-            gvErroresOrigen.Columns.Add(new GridViewColumn() {
-                Header = "Existencias",
-                DisplayMemberBinding = new Binding("Precio")
-            });
+            txtQuery.Text = string.Empty;
+            txtQuery.Foreground = new SolidColorBrush(Colors.Black);
+            try {
+                gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                    Header = "Id",
+                    DisplayMemberBinding = new Binding("Id"),
+                    Width = 50D
+                });
+                gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                    Header = "Código",
+                    DisplayMemberBinding = new Binding("SKU")
+                });
+                gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                    Header = "Nombre",
+                    DisplayMemberBinding = new Binding("Nombre")
+                });
+                gvErroresOrigen.Columns.Add(new GridViewColumn() {
+                    Header = "Existencias",
+                    DisplayMemberBinding = new Binding("Precio")
+                });
 
-            gvErroresDestino.Columns.Add(new GridViewColumn() {
-                Header = "Id",
-                DisplayMemberBinding = new Binding("Id"),
-                Width = 50D
-            });
-            gvErroresDestino.Columns.Add(new GridViewColumn() {
-                Header = "Código",
-                DisplayMemberBinding = new Binding("SKU"),
-                Width = 255
-            });
-            gvErroresDestino.Columns.Add(new GridViewColumn() {
-                Header = "Nombre",
-                DisplayMemberBinding = new Binding("Nombre"),
-                Width = 255
-            });
-            gvErroresDestino.Columns.Add(new GridViewColumn() {
-                Header = "Existencias",
-                DisplayMemberBinding = new Binding("Precio"),
-                Width = 255
-            });
+                gvErroresDestino.Columns.Add(new GridViewColumn() {
+                    Header = "Id",
+                    DisplayMemberBinding = new Binding("Id"),
+                    Width = 50D
+                });
+                gvErroresDestino.Columns.Add(new GridViewColumn() {
+                    Header = "Código",
+                    DisplayMemberBinding = new Binding("SKU"),
+                    Width = 255
+                });
+                gvErroresDestino.Columns.Add(new GridViewColumn() {
+                    Header = "Nombre",
+                    DisplayMemberBinding = new Binding("Nombre"),
+                    Width = 255
+                });
+                gvErroresDestino.Columns.Add(new GridViewColumn() {
+                    Header = "Existencias",
+                    DisplayMemberBinding = new Binding("Precio"),
+                    Width = 255
+                });
 
-            lstErroresOrigen.Items.Clear();
-            lstErroresDestino.Items.Clear();
-            lstErroresOrigen.View = gvErroresOrigen;
-            lstErroresDestino.View = gvErroresDestino;
+                lstErroresOrigen.Items.Clear();
+                lstErroresDestino.Items.Clear();
+                lstErroresOrigen.View = gvErroresOrigen;
+                lstErroresDestino.View = gvErroresDestino;
 
-            while (i <= finOrigen && j <= finDestino) {
-                if (i < finOrigen)
-                    filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
-                if (j < finDestino)
-                    filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
-                if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
-                    string IdO = filaOrigen[2].ToString().ToUpperInvariant(), // 3 = [Codigo]
-                        IdD = filaDestino[1].ToString().ToUpperInvariant(); // 1 = [Nombre] donde colocan el código
-                    int cmp = string.Compare(IdO, IdD, true);
-                    if (cmp < 0) {
-                        lstErroresOrigen.Items.Add(new ResultadoItem() {
-                            Id = int.Parse(filaOrigen[0].ToString()),
-                            SKU = filaOrigen[2].ToString().ToUpperInvariant(),
-                            Nombre = filaOrigen[1].ToString(),
-                            Precio = filaOrigen[3].ToString()
-                        });
-                        i++;
-                    } else if (cmp == 0) {
-                        if (chkDistintosExist.IsChecked.HasValue ? chkDistintosExist.IsChecked.Value : false) {
-                            if (decimal.Parse(filaOrigen[3].ToString()) != decimal.Parse(filaDestino[4].ToString())) {
-                                sbQuery.AppendLine(
-                                        string.Format("UPDATE dbo.Product SET StockQuantity = '{0}' WHERE Id = '{1}'; ", filaOrigen[3].ToString(), filaDestino[0].ToString())
-                                        );
-                                k++;
+                while (i <= finOrigen && j <= finDestino) {
+                    try {
+                        if (i < finOrigen)
+                            filaOrigen = (dvOrigen.Rows[i] as DataRow).ItemArray.ToList();
+                        if (j < finDestino)
+                            filaDestino = (dvDestino.Rows[j] as DataRow).ItemArray.ToList();
+                        if (filaOrigen.Count > 0 && filaDestino.Count > 0) {
+                            string IdO = filaOrigen[2].ToString().ToUpperInvariant(), // 3 = [Codigo]
+                                IdD = filaDestino[1].ToString().ToUpperInvariant(); // 1 = [Nombre] donde colocan el código
+                            int cmp = string.Compare(IdO, IdD, true);
+                            if (cmp < 0) {
+                                //if (i == j && j % 5 == 0)
+                                //    throw new Exception("erroren lectura");
+                                try {
+                                    //if (j % 3 == 0)
+                                    //    throw new Exception () {
+                                    //        Source= "test error"
+                                    //    };
+                                    lstErroresOrigen.Items.Add(new ResultadoItem() {
+                                        Id = int.Parse(filaOrigen[0].ToString()),
+                                        SKU = filaOrigen[2].ToString().ToUpperInvariant(),
+                                        Nombre = filaOrigen[1].ToString(),
+                                        Precio = filaOrigen[3].ToString()
+                                    });
+                                } catch (Exception ex) {
+                                    lstErroresOrigen.Items.Add(new ResultadoItem() {
+                                        Id = 0,
+                                        SKU = string.Empty,
+                                        Nombre = ex.Message,
+                                        Precio = string.Empty
+                                    });
+                                }
+                                i++;
+                            } else if (cmp == 0) {
+                                if (chkDistintosExist.IsChecked.HasValue ? chkDistintosExist.IsChecked.Value : false) {
+                                    if (decimal.Parse(filaOrigen[3].ToString()) != decimal.Parse(filaDestino[4].ToString())) {
+                                        sbQuery.AppendLine(
+                                                string.Format("UPDATE dbo.Product SET StockQuantity = '{0}' WHERE Id = '{1}'; ", filaOrigen[3].ToString(), filaDestino[0].ToString())
+                                                );
+                                        k++;
+                                    }
+                                } else {
+                                    sbQuery.AppendLine(
+                                            string.Format("UPDATE dbo.Product SET StockQuantity = '{0}' WHERE Id = '{1}'; ", filaOrigen[3].ToString(), filaDestino[0].ToString())
+                                            );
+                                    k++;
+                                }
+                                i++;
+                                j++;
+                            } else if (cmp > 0) {
+                                lstErroresDestino.Items.Add(new ResultadoItem() {
+                                    Id = int.Parse(filaDestino[0].ToString()),
+                                    SKU = filaDestino[1].ToString(),
+                                    Nombre = filaDestino[2].ToString(),
+                                    Precio = filaDestino[4].ToString()
+                                });
+                                j++;
                             }
-                        } else {
-                            sbQuery.AppendLine(
-                                    string.Format("UPDATE dbo.Product SET StockQuantity = '{0}' WHERE Id = '{1}'; ", filaOrigen[3].ToString(), filaDestino[0].ToString())
-                                    );
-                            k++;
                         }
+                    } catch (Exception ex) {
+                        sbQuery.AppendLine(
+                            "-- ERROR: " + ex.Message
+                            );
                         i++;
-                        j++;
-                    } else if (cmp > 0) {
-                        lstErroresDestino.Items.Add(new ResultadoItem() {
-                            Id = int.Parse(filaDestino[0].ToString()),
-                            SKU = filaDestino[1].ToString(),
-                            Nombre = filaDestino[2].ToString(),
-                            Precio = filaDestino[4].ToString()
-                        });
                         j++;
                     }
                 }
+
+                txtQuery.Text = sbQuery.ToString();
+                tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) || (lstErroresOrigen.Items.Count > 0);
+                btnSincronizarExist.IsEnabled = !string.IsNullOrEmpty(txtQuery.Text);
+                lblStatOrigen.Content = "Registros no encontrados en la tabla destino: " + lstErroresOrigen.Items.Count.ToString();
+                lblStatDestino.Content = "Registros no encontrados en la tabla origen: " + lstErroresDestino.Items.Count.ToString();
+                lblStatQuery.Content = "Registros empatados por actualizar: " + k.ToString();
+
+            } catch (Exception ex) {
+                txtQuery.Text = ex.Message;
+                txtQuery.Foreground = new SolidColorBrush(Colors.Red);
             }
 
-            txtQuery.Text = sbQuery.ToString();
-            tabQuery.IsEnabled = (!string.IsNullOrEmpty(txtQuery.Text)) || (lstErroresOrigen.Items.Count > 0);
-            btnSincronizarExist.IsEnabled = !string.IsNullOrEmpty(txtQuery.Text);
-            lblStatOrigen.Content = "Registros no encontrados en la tabla destino: " + lstErroresOrigen.Items.Count.ToString();
-            lblStatDestino.Content = "Registros no encontrados en la tabla origen: " + lstErroresDestino.Items.Count.ToString();
-            lblStatQuery.Content = "Registros empatados por actualizar: " + k.ToString();
 
         }
 
